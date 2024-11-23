@@ -147,11 +147,8 @@
                     <execution>
                         <phase>process-resources</phase>
                         <configuration>
+                            <propertyFile>src/main/resources/liquibase.properties</propertyFile>
                             <changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
-                            <url>jdbc:mysql://localhost:3306/bookstore</url>
-                            <username>root</username>
-                            <password>123456</password>
-                            <driver>com.mysql.cj.jdbc.Driver</driver>
                         </configuration>
                         <goals>
                             <goal>update</goal>
@@ -159,6 +156,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>
