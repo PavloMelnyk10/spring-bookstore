@@ -6,6 +6,10 @@ import mate.academy.bookstore.dto.BookSearchParametersDto;
 import mate.academy.bookstore.model.Book;
 import mate.academy.bookstore.repository.SpecificationBuilder;
 import mate.academy.bookstore.repository.SpecificationProviderManager;
+import mate.academy.bookstore.repository.book.spec.AuthorSpecificationProvider;
+import mate.academy.bookstore.repository.book.spec.DescriptionSpecificationProvider;
+import mate.academy.bookstore.repository.book.spec.IsbnSpecificationProvider;
+import mate.academy.bookstore.repository.book.spec.TitleSpecificationProvider;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -20,24 +24,27 @@ public class BookSpecificationBuilder implements
         Specification<Book> spec = Specification.where(null);
 
         if (searchParameters.getTitle() != null && searchParameters.getTitle().length > 0) {
-            spec = spec.and(bookSpecificationProviderManager.getSpecificationProvider("title")
+            spec = spec.and(bookSpecificationProviderManager
+                    .getSpecificationProvider(TitleSpecificationProvider.KEY)
                     .getSpecification(searchParameters.getTitle()));
         }
 
         if (searchParameters.getAuthor() != null && searchParameters.getAuthor().length > 0) {
-            spec = spec.and(bookSpecificationProviderManager.getSpecificationProvider("author")
+            spec = spec.and(bookSpecificationProviderManager
+                    .getSpecificationProvider(AuthorSpecificationProvider.KEY)
                     .getSpecification(searchParameters.getAuthor()));
         }
 
         if (searchParameters.getIsbn() != null && searchParameters.getIsbn().length > 0) {
-            spec = spec.and(bookSpecificationProviderManager.getSpecificationProvider("isbn")
+            spec = spec.and(bookSpecificationProviderManager
+                    .getSpecificationProvider(IsbnSpecificationProvider.KEY)
                     .getSpecification(searchParameters.getIsbn()));
         }
 
         if (searchParameters.getDescription() != null
                 && searchParameters.getDescription().length > 0) {
             spec = spec.and(bookSpecificationProviderManager
-                    .getSpecificationProvider("description")
+                    .getSpecificationProvider(DescriptionSpecificationProvider.KEY)
                     .getSpecification(searchParameters.getDescription()));
         }
 
