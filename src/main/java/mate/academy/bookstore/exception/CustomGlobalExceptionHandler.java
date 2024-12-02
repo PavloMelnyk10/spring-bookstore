@@ -25,13 +25,15 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
             HttpStatusCode status,
             WebRequest request) {
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
         List<String> errors = ex.getBindingResult().getAllErrors().stream()
-                        .map(this::getErrorMessage)
-                        .toList();
-        body.put("errors", errors);
+                .map(this::getErrorMessage)
+                .toList();
+
+        Map<String, Object> body = createErrorBody(
+                status.value(),
+                "Validation Failed",
+                errors
+        );
 
         return new ResponseEntity<>(body, headers, status);
     }
@@ -39,7 +41,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     private String getErrorMessage(ObjectError e) {
         if (e instanceof FieldError) {
             String fieldName = ((FieldError) e).getField();
-            String message = ((FieldError) e).getDefaultMessage();
+            String message = e.getDefaultMessage();
             return fieldName + ": " + message;
         }
         return e.getDefaultMessage();
@@ -48,12 +50,22 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFound(
             EntityNotFoundException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Entity not found");
-        body.put("message", ex.getMessage());
+
+        Map<String, Object> body = createErrorBody(
+                HttpStatus.NOT_FOUND.value(),
+                "Entity Not Found",
+                List.of(ex.getMessage())
+        );
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    private Map<String, Object> createErrorBody(int status, String error, List<String> messages) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status);
+        body.put("error", error);
+        body.put("messages", messages);
+        return body;
     }
 }

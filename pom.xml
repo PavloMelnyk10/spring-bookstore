@@ -80,11 +80,11 @@
             <artifactId>liquibase-maven-plugin</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
-        <!-- Hibernate validator dependency -->
+        <!-- Spring boot validation dependency -->
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>8.0.1.Final</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>3.4.0</version>
         </dependency>
     </dependencies>
 
