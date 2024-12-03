@@ -3,13 +3,13 @@ package mate.academy.bookstore.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mate.academy.bookstore.dto.BookDto;
 import mate.academy.bookstore.dto.BookSearchParametersDto;
 import mate.academy.bookstore.dto.CreateBookRequestDto;
 import mate.academy.bookstore.dto.UpdateBookRequestDto;
 import mate.academy.bookstore.service.BookService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +31,7 @@ public class BookController {
 
     @GetMapping
     @Operation(summary = "Get all books", description = "Get a list of all available books")
-    public List<BookDto> findAll(Pageable pageable) {
+    public Page<BookDto> findAll(Pageable pageable) {
         return bookService.findAll(pageable);
     }
 
@@ -44,7 +44,7 @@ public class BookController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new book",
-            description = "Add a new book to DB")
+            description = "Add a new book to the database")
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto requestDto) {
         return bookService.save(requestDto);
     }
@@ -68,7 +68,7 @@ public class BookController {
     @GetMapping("/search")
     @Operation(summary = "Search for books",
             description = "Search for books using specified parameters")
-    public List<BookDto> search(BookSearchParametersDto searchParameters, Pageable pageable) {
+    public Page<BookDto> search(BookSearchParametersDto searchParameters, Pageable pageable) {
         return bookService.search(searchParameters, pageable);
     }
 }
