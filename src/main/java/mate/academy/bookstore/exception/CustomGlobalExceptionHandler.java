@@ -63,20 +63,9 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<Object> handleRegistrationException(RegistrationException e) {
         Map<String, Object> body = createErrorBody(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.CONFLICT.value(),
                 "Registration Error",
                 List.of(e.getMessage())
-        );
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        Map<String, Object> body = createErrorBody(
-                HttpStatus.CONFLICT.value(),
-                "User Already Exists",
-                List.of(ex.getMessage())
         );
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);

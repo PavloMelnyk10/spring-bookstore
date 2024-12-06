@@ -2,7 +2,9 @@ package mate.academy.bookstore.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
 import mate.academy.bookstore.dto.user.UserRegistrationRequestDto;
+import org.springframework.beans.BeanWrapperImpl;
 
 public class FieldMatchValidator implements
         ConstraintValidator<FieldMatch, UserRegistrationRequestDto> {
@@ -23,17 +25,10 @@ public class FieldMatchValidator implements
             return true;
         }
 
-        String firstValue = null;
-        String secondValue = null;
+        Object firstValue = new BeanWrapperImpl(value).getPropertyValue(firstFieldName);
+        Object secondValue = new BeanWrapperImpl(value).getPropertyValue(secondFieldName);
 
-        if (firstFieldName.equals("password")) {
-            firstValue = value.getPassword();
-        }
-        if (secondFieldName.equals("repeatPassword")) {
-            secondValue = value.getConfirmPassword();
-        }
-
-        boolean valid = firstValue != null && firstValue.equals(secondValue);
+        boolean valid = Objects.equals(firstValue, secondValue);
 
         if (!valid) {
             context.disableDefaultConstraintViolation();
