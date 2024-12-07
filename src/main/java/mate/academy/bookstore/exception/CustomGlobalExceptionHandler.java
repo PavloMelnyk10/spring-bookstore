@@ -60,6 +60,17 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<Object> handleRegistrationException(RegistrationException e) {
+        Map<String, Object> body = createErrorBody(
+                HttpStatus.CONFLICT.value(),
+                "Registration Error",
+                List.of(e.getMessage())
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
     private Map<String, Object> createErrorBody(int status, String error, List<String> messages) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
