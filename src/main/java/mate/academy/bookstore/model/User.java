@@ -48,7 +48,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean isDeleted;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -68,7 +68,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return !isDeleted;
     }
 
     @Override
