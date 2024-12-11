@@ -36,7 +36,7 @@ public class AuthController {
     @Operation(summary = "Authenticate user",
             description = "Authenticate user using email "
                     + "and password and return JWT token for accessing secure endpoints")
-    public UserLoginResponseDto login(@RequestBody UserLoginRequestDto requestDto) {
+    public UserLoginResponseDto login(@Valid @RequestBody UserLoginRequestDto requestDto) {
         return authenticationService.authenticate(requestDto);
     }
 }
