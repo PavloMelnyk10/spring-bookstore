@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-users
+      author: pavlom
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "john@example.com"
+              - column:
+                  name: password
+                  value: "$2a$10$dmpYrB2OGWGu5scEEEE49uHAZJhG1BKfjjDM1Erz81j2lCSDSRIse"
+              - column:
+                  name: first_name
+                  value: "John"
+              - column:
+                  name: last_name
+                  value: "Doe"
+              - column:
+                  name: shipping_address
+                  value: "123 Main St, City, Country"
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "jane@example.com"
+              - column:
+                  name: password
+                  value: "$2a$10$smBPppAu4p3fBJ1xeANCAuAp87xWtDUxhmUW9/gXBGrf7nb1L8cAm"
+              - column:
+                  name: first_name
+                  value: "Jane"
+              - column:
+                  name: last_name
+                  value: "Smith"
+              - column:
+                  name: shipping_address
+                  value: "456 Elm St, Another City, Another Country"
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "10pm@gmail.com"
+              - column:
+                  name: password
+                  value: "$2a$10$TyK2j48bEYCK5JhfrVvZHOtKZu/LovXvfSGClmHaIoVqcdDbPSCuW"
+              - column:
+                  name: first_name
+                  value: "Pavlo"
+              - column:
+                  name: last_name
+                  value: "Melnyk"
+              - column:
+                  name: shipping_address
+                  value: "456 Elm St, Another City, Another Country"
