@@ -13,4 +13,5 @@ public class BookSearchParametersDto {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String[] description;
+    private String[] categoryId;
 }

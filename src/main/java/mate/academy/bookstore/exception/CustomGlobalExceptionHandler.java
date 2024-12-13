@@ -79,4 +79,17 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         body.put("messages", messages);
         return body;
     }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Object> handleCategoriesNotFound(
+            CategoryNotFoundException ex, WebRequest request) {
+
+        Map<String, Object> body = createErrorBody(
+                HttpStatus.NOT_FOUND.value(),
+                "Category Not Found",
+                List.of(ex.getMessage())
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
 }

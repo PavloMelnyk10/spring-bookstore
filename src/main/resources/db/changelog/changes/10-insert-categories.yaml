@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-categories
+      author: pavlom
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Fiction"
+              - column:
+                  name: description
+                  value: "Books that contain fictional stories."
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Science"
+              - column:
+                  name: description
+                  value: "Books that explore scientific topics."
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "History"
+              - column:
+                  name: description
+                  value: "Books about historical events and people."
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Romance"
+              - column:
+                  name: description
+                  value: "Books that focus on romantic relationships."
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: "Fantasy"
+              - column:
+                  name: description
+                  value: "Books set in fictional universes with magical elements."

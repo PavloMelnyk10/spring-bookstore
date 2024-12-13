@@ -11,6 +11,8 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     User toModel(UserRegistrationRequestDto dto);
 
     UserResponseDto toUserResponse(User user);

@@ -7,6 +7,7 @@ import mate.academy.bookstore.model.Book;
 import mate.academy.bookstore.repository.SpecificationBuilder;
 import mate.academy.bookstore.repository.SpecificationProviderManager;
 import mate.academy.bookstore.repository.book.spec.AuthorSpecificationProvider;
+import mate.academy.bookstore.repository.book.spec.CategorySpecificationProvider;
 import mate.academy.bookstore.repository.book.spec.DescriptionSpecificationProvider;
 import mate.academy.bookstore.repository.book.spec.IsbnSpecificationProvider;
 import mate.academy.bookstore.repository.book.spec.TitleSpecificationProvider;
@@ -46,6 +47,13 @@ public class BookSpecificationBuilder implements
             spec = spec.and(bookSpecificationProviderManager
                     .getSpecificationProvider(DescriptionSpecificationProvider.KEY)
                     .getSpecification(searchParameters.getDescription()));
+        }
+
+        if (searchParameters.getCategoryId() != null
+                && searchParameters.getCategoryId().length > 0) {
+            spec = spec.and(bookSpecificationProviderManager
+                    .getSpecificationProvider(CategorySpecificationProvider.KEY)
+                    .getSpecification(searchParameters.getCategoryId()));
         }
 
         if (searchParameters.getMinPrice() != null || searchParameters.getMaxPrice() != null) {

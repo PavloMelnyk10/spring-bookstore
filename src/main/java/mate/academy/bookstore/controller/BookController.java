@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mate.academy.bookstore.dto.book.BookDto;
+import mate.academy.bookstore.dto.book.BookDtoWithoutCategories;
 import mate.academy.bookstore.dto.book.BookSearchParametersDto;
 import mate.academy.bookstore.dto.book.CreateBookRequestDto;
 import mate.academy.bookstore.dto.book.UpdateBookRequestDto;
@@ -32,8 +33,9 @@ public class BookController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    @Operation(summary = "Get all books", description = "Get a list of all available books")
-    public Page<BookDto> findAll(Pageable pageable) {
+    @Operation(summary = "Get all books",
+            description = "Get a paginated list of all available books")
+    public Page<BookDtoWithoutCategories> findAll(Pageable pageable) {
         return bookService.findAll(pageable);
     }
 
@@ -56,8 +58,8 @@ public class BookController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Delete a book by ID",
-            description = "Remove a book from the system by ID")
+    @Operation(summary = "Soft delete a book",
+            description = "Mark a book as deleted in the database by ID")
     public void delete(@PathVariable Long id) {
         bookService.deleteById(id);
     }
