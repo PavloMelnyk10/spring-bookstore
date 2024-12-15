@@ -24,6 +24,10 @@ public interface BookMapper {
     @Mapping(target = "categories", ignore = true)
     Book toModel(CreateBookRequestDto requestDto);
 
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "categories", ignore = true)
+    Book toModel(BookDto byId);
+
     BookDtoWithoutCategories toDtoWithoutCategories(Book book);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
