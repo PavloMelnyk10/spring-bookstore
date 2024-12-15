@@ -7,9 +7,11 @@ import mate.academy.bookstore.dto.cart.UpdateCartItemRequestDto;
 public interface ShoppingCartService {
     CartDto getShoppingCartForCurrentUser();
 
-    void addBookToCart(AddCartItemRequestDto addCartItemRequestDto);
+    CartDto addBookToCart(AddCartItemRequestDto addCartItemRequestDto);
 
-    void updateCartItemQuantity(Long cartItemId, UpdateCartItemRequestDto updateCartItemRequestDto);
+    CartDto updateCartItemQuantity(
+            Long cartItemId,
+            UpdateCartItemRequestDto updateCartItemRequestDto);
 
     void removeCartItem(Long cartItemId);
 }

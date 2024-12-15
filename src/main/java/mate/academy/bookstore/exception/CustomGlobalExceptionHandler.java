@@ -92,30 +92,4 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler(ShoppingCartNotFoundException.class)
-    public ResponseEntity<Object> handleShoppingCartNotFound(
-            ShoppingCartNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = createErrorBody(
-                HttpStatus.NOT_FOUND.value(),
-                "Shopping Cart Not Found",
-                List.of(ex.getMessage())
-        );
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(CartItemNotFoundException.class)
-    public ResponseEntity<Object> handleCartItemNotFound(
-            CartItemNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = createErrorBody(
-                HttpStatus.NOT_FOUND.value(),
-                "Cart Item Not Found",
-                List.of(ex.getMessage())
-        );
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
 }

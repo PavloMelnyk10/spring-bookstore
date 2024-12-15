@@ -40,8 +40,8 @@ public class CartController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Add book to cart",
             description = "Add a book to the current user's shopping cart")
-    public void addBookToCart(@Valid @RequestBody AddCartItemRequestDto requestDto) {
-        shoppingCartService.addBookToCart(requestDto);
+    public CartDto addBookToCart(@Valid @RequestBody AddCartItemRequestDto requestDto) {
+        return shoppingCartService.addBookToCart(requestDto);
     }
 
     @PutMapping("/items/{cartItemId}")
@@ -49,9 +49,9 @@ public class CartController {
     @Operation(summary = "Update cart item quantity",
             description = "Update the quantity of a specific book"
                     + " in the shopping cart by its item ID")
-    public void updateCartItemQuantity(@PathVariable Long cartItemId,
+    public CartDto updateCartItemQuantity(@PathVariable Long cartItemId,
                                        @Valid @RequestBody UpdateCartItemRequestDto requestDto) {
-        shoppingCartService.updateCartItemQuantity(cartItemId, requestDto);
+        return shoppingCartService.updateCartItemQuantity(cartItemId, requestDto);
     }
 
     @DeleteMapping("/items/{cartItemId}")

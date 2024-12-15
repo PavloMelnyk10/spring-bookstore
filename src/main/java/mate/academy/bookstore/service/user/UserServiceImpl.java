@@ -11,7 +11,6 @@ import mate.academy.bookstore.model.User;
 import mate.academy.bookstore.repository.role.RoleRepository;
 import mate.academy.bookstore.repository.user.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            String email = ((UserDetails) principal).getUsername();
-            return userRepository.findByEmail(email)
-                    .orElseThrow(()
-                            -> new IllegalArgumentException("User not found with email: " + email));
-        }
-
-        throw new IllegalArgumentException("Authentication principal is not of type UserDetails");
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
 }
