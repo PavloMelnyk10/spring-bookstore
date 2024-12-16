@@ -6,14 +6,13 @@ import mate.academy.bookstore.dto.cart.AddCartItemRequestDto;
 import mate.academy.bookstore.dto.cart.CartDto;
 import mate.academy.bookstore.dto.cart.UpdateCartItemRequestDto;
 import mate.academy.bookstore.exception.EntityNotFoundException;
-import mate.academy.bookstore.mapper.BookMapper;
 import mate.academy.bookstore.mapper.ShoppingCartMapper;
 import mate.academy.bookstore.model.Book;
 import mate.academy.bookstore.model.CartItem;
 import mate.academy.bookstore.model.ShoppingCart;
 import mate.academy.bookstore.model.User;
+import mate.academy.bookstore.repository.book.BookRepository;
 import mate.academy.bookstore.repository.shoppingcart.ShoppingCartRepository;
-import mate.academy.bookstore.service.book.BookService;
 import mate.academy.bookstore.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +23,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final UserService userService;
-    private final BookService bookService;
-    private final BookMapper bookMapper;
+    private final BookRepository bookRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -53,7 +51,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             existingCartItem.get().setQuantity(
                     existingCartItem.get().getQuantity() + requestDto.getQuantity());
         } else {
-            Book book = bookMapper.toModel(bookService.findById(requestDto.getBookId()));
+            Book book = bookRepository.findById(requestDto.getBookId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Book with id " + requestDto.getBookId() + " not found"));
+
             CartItem newCartItem = new CartItem();
             newCartItem.setBook(book);
             newCartItem.setQuantity(requestDto.getQuantity());

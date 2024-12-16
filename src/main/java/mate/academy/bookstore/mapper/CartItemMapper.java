@@ -1,7 +1,7 @@
 package mate.academy.bookstore.mapper;
 
 import mate.academy.bookstore.config.MapperConfig;
-import mate.academy.bookstore.dto.cart.CartDto.CartItemDto;
+import mate.academy.bookstore.dto.cart.CartItemDto;
 import mate.academy.bookstore.model.CartItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

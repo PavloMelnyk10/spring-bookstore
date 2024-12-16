@@ -1,6 +1,5 @@
 package mate.academy.bookstore.dto.cart;
 
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CartDto {
+public class CartItemDto {
     private Long id;
-    private Long userId;
-    private List<CartItemDto> cartItems;
+    private Long bookId;
+    private String bookTitle;
+    private int quantity;
 }
