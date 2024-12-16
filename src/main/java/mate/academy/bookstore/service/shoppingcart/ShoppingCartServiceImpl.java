@@ -101,4 +101,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         shoppingCartRepository.save(shoppingCart);
     }
+
+    @Override
+    public void clearShoppingCart(ShoppingCart shoppingCart) {
+        shoppingCart.getCartItems().clear();
+        shoppingCartRepository.save(shoppingCart);
+    }
 }

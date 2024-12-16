@@ -7,59 +7,42 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "books")
-@SQLDelete(sql = "UPDATE books SET is_deleted = TRUE WHERE id = ?")
+@Entity
+@Table(name = "order_items")
+@SQLDelete(sql = "UPDATE order_items SET is_deleted = TRUE WHERE id = ?")
 @SQLRestriction("is_deleted = FALSE")
-public class Book {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
 
     @Column(nullable = false)
-    private String author;
-
-    @Column(nullable = false, unique = true)
-    @EqualsAndHashCode.Include
-    private String isbn;
+    private int quantity;
 
     @Column(nullable = false)
     private BigDecimal price;
 
-    private String description;
-
-    private String coverImage;
-
     @Column(nullable = false)
     private boolean isDeleted;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "books_categories",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @ToString.Exclude
-    private Set<Category> categories = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -69,12 +52,14 @@ public class Book {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Book book = (Book) o;
-        return Objects.equals(id, book.id) && Objects.equals(isbn, book.isbn);
+        OrderItem orderItem = (OrderItem) o;
+        return quantity == orderItem.quantity
+                && Objects.equals(book, orderItem.book)
+                && Objects.equals(price, orderItem.price);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, isbn);
+        return Objects.hash(book, quantity, price);
     }
 }
