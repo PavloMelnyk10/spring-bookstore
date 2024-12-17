@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,9 +26,11 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "books")
 @SQLDelete(sql = "UPDATE books SET is_deleted = TRUE WHERE id = ?")
 @SQLRestriction("is_deleted = FALSE")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false)
@@ -60,21 +61,4 @@ public class Book {
     )
     @ToString.Exclude
     private Set<Category> categories = new HashSet<>();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Book book = (Book) o;
-        return Objects.equals(id, book.id) && Objects.equals(isbn, book.isbn);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, isbn);
-    }
 }

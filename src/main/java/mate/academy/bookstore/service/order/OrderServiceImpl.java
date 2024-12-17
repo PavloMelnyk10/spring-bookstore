@@ -2,13 +2,13 @@ package mate.academy.bookstore.service.order;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import mate.academy.bookstore.dto.order.OrderDto;
 import mate.academy.bookstore.dto.order.OrderItemDto;
 import mate.academy.bookstore.dto.order.UpdateOrderStatusRequestDto;
+import mate.academy.bookstore.exception.EmptyCartException;
 import mate.academy.bookstore.exception.EntityNotFoundException;
 import mate.academy.bookstore.mapper.OrderItemMapper;
 import mate.academy.bookstore.mapper.OrderMapper;
@@ -17,6 +17,7 @@ import mate.academy.bookstore.model.Order;
 import mate.academy.bookstore.model.OrderItem;
 import mate.academy.bookstore.model.ShoppingCart;
 import mate.academy.bookstore.model.User;
+import mate.academy.bookstore.repository.order.OrderItemRepository;
 import mate.academy.bookstore.repository.order.OrderRepository;
 import mate.academy.bookstore.repository.shoppingcart.ShoppingCartRepository;
 import mate.academy.bookstore.service.shoppingcart.ShoppingCartService;
@@ -34,36 +35,23 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     @Override
     public OrderDto placeOrder(String shippingAddress) {
         User user = userService.getCurrentUser();
 
-        Order order = new Order();
-        order.setShippingAddress(shippingAddress);
-        order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus(Order.Status.PENDING);
+        Order order = initializeOrder(user, shippingAddress);
 
-        BigDecimal total = BigDecimal.ZERO;
+        ShoppingCart shoppingCart = getShoppingCartForUser(user);
 
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Shopping cart not found for user: " + user.getId()));
-
-        for (CartItem cartItem : shoppingCart.getCartItems()) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setBook(cartItem.getBook());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(cartItem.getBook().getPrice()
-                    .multiply(BigDecimal.valueOf(cartItem.getQuantity())));
-
-            total = total.add(orderItem.getPrice());
-            order.getOrderItems().add(orderItem);
+        if (shoppingCart.getCartItems().isEmpty()) {
+            throw new EmptyCartException(
+                    "Cannot place an order. Should be at least one item in the shopping cart");
         }
-        order.setTotal(total);
+
+        order.setTotal(calculateTotalAndAddItems(order, shoppingCart));
 
         shoppingCartService.clearShoppingCart(shoppingCart);
 
@@ -74,12 +62,11 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDto> getAllOrders(Pageable pageable) {
         User user = userService.getCurrentUser();
 
-        if (isAdmin(user)) {
-            return orderRepository.findAll(pageable).map(orderMapper::toDto);
-        }
+        Page<Order> orders = isAdmin(user)
+                ? orderRepository.findAll(pageable)
+                : orderRepository.findAllByUserId(user.getId(), pageable);
 
-        return orderRepository.findAllByUserId(user.getId(), pageable)
-                .map(orderMapper::toDto);
+        return orders.map(orderMapper::toDto);
     }
 
     @Override
@@ -87,8 +74,11 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderItemDto> getOrderItems(Long orderId) {
         User user = userService.getCurrentUser();
 
-        Order order = orderRepository.findById(orderId)
-                .filter(o -> isAdmin(user) || o.getUser().getId().equals(user.getId()))
+        Order order = isAdmin(user)
+                ? orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Order not found with id: " + orderId))
+                : orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Order not found with id: " + orderId + " for user: " + user.getId()));
 
@@ -100,19 +90,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderItemDto getOrderItem(Long orderId, Long itemId) {
-        User user = userService.getCurrentUser();
-
-        Order order = orderRepository.findById(orderId)
-                .filter(o -> isAdmin(user) || o.getUser().getId().equals(user.getId()))
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Order not found with id: " + orderId + " for user: " + user.getId()));
-
-        OrderItem orderItem = order.getOrderItems().stream()
-                .filter(item -> item.getId().equals(itemId))
-                .findFirst()
+        OrderItem orderItem = orderItemRepository.findByIdAndOrderId(itemId, orderId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "OrderItem not found with id: " + itemId + " in order: " + orderId));
-
         return orderItemMapper.toDto(orderItem);
     }
 
@@ -130,5 +110,38 @@ public class OrderServiceImpl implements OrderService {
     private boolean isAdmin(User user) {
         return user.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    private Order initializeOrder(User user, String shippingAddress) {
+        Order order = new Order();
+        order.setUser(user);
+        order.setShippingAddress(shippingAddress);
+        order.setStatus(Order.Status.PENDING);
+        return order;
+    }
+
+    private ShoppingCart getShoppingCartForUser(User user) {
+        return shoppingCartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Shopping cart not found for user: " + user.getId()));
+    }
+
+    private BigDecimal calculateTotalAndAddItems(Order order, ShoppingCart shoppingCart) {
+        return shoppingCart.getCartItems().stream()
+                .map(cartItem -> createOrderItem(order, cartItem))
+                .map(OrderItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private OrderItem createOrderItem(Order order, CartItem cartItem) {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setBook(cartItem.getBook());
+        orderItem.setQuantity(cartItem.getQuantity());
+        orderItem.setPrice(cartItem.getBook().getPrice()
+                .multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+
+        order.getOrderItems().add(orderItem);
+        return orderItem;
     }
 }
