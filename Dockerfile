@@ -1,9 +1,16 @@
-FROM amazoncorretto:22
-
+# Builder stage
+FROM amazoncorretto:21 as builder
 WORKDIR /app
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
 
-COPY target/intro-0.0.1-SNAPSHOT.jar app.jar
-
-EXPOSE 8080
-
-CMD ["java", "-jar", "app.jar"]
+# Final stage
+FROM amazoncorretto:21
+WORKDIR /app
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/snapshot-dependencies/ ./
+COPY --from=builder /app/application/ ./
+EXPOSE ${SPRING_DOCKER_PORT}
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
