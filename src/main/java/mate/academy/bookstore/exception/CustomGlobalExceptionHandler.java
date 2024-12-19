@@ -92,4 +92,17 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<Object> handleEmptyCart(
+            EmptyCartException ex, WebRequest request) {
+
+        Map<String, Object> body = createErrorBody(
+                HttpStatus.BAD_REQUEST.value(),
+                "Cart Is Empty",
+                List.of(ex.getMessage())
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }
