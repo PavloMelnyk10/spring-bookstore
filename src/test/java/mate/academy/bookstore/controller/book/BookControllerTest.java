@@ -1,6 +1,5 @@
 package mate.academy.bookstore.controller.book;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -28,10 +27,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookControllerTest {
-
     protected static MockMvc mockMvc;
 
     @Autowired
@@ -58,6 +57,7 @@ class BookControllerTest {
                 .setDescription("A wizard's journey")
                 .setIsbn("978-1234567897")
                 .setPrice(BigDecimal.valueOf(29.99))
+                .setCoverImage("https://example.com/hp.jpg")
                 .setCategoryIds(Set.of(1L));
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
@@ -70,10 +70,21 @@ class BookControllerTest {
                 .andReturn();
 
         // Then
-        BookDto actual = objectMapper
-                .readValue(result.getResponse().getContentAsString(), BookDto.class);
+        BookDto actual = objectMapper.readValue(
+                result.getResponse().getContentAsString(), BookDto.class);
         assertNotNull(actual);
-        assertEquals("Harry Potter", actual.getTitle());
+
+        BookDto expected = new BookDto()
+                .setId(actual.getId())
+                .setTitle("Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setDescription("A wizard's journey")
+                .setIsbn("978-1234567897")
+                .setPrice(BigDecimal.valueOf(29.99))
+                .setCoverImage("https://example.com/hp.jpg")
+                .setCategoryIds(Set.of(1L));
+
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
     }
 
     @Test
@@ -88,16 +99,26 @@ class BookControllerTest {
         long bookId = 1L;
 
         // When
-        MvcResult result = mockMvc.perform(get("/books/" + 1L))
+        MvcResult result = mockMvc.perform(get("/books/" + bookId))
                 .andExpect(status().isOk())
                 .andReturn();
-        System.out.println(result.getResponse().getContentAsString());
 
         // Then
+        BookDto actual = objectMapper.readValue(
+                result.getResponse().getContentAsString(), BookDto.class);
+        assertNotNull(actual);
 
-        String actualResponse = result.getResponse().getContentAsString();
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.contains("Harry Potter"));
+        BookDto expected = new BookDto()
+                .setId(bookId)
+                .setTitle("Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setDescription("A young wizard's adventures.")
+                .setIsbn("978-1234567897")
+                .setPrice(BigDecimal.valueOf(14.99))
+                .setCoverImage("https://example.com/hp.jpg")
+                .setCategoryIds(Set.of(1L));
+
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
     }
 
     @Test
@@ -111,12 +132,12 @@ class BookControllerTest {
         // Given
         long bookId = 1L;
 
-        // When & Then
+        // When
         mockMvc.perform(delete("/books/" + bookId))
                 .andExpect(status().isNoContent());
 
-        // Then
-
+        mockMvc.perform(get("/books/" + bookId))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -137,19 +158,26 @@ class BookControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        // When & Then
+        // When
         MvcResult result = mockMvc.perform(patch("/books/" + bookId)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        BookDto actual = objectMapper
-                .readValue(result.getResponse().getContentAsString(), BookDto.class);
+        // Then
+        BookDto actual = objectMapper.readValue(
+                result.getResponse().getContentAsString(), BookDto.class);
         assertNotNull(actual);
-        assertEquals("Updated Harry Potter", actual.getTitle());
-        assertEquals("J.K. Rowling", actual.getAuthor());
-        assertEquals("978-1234567891", actual.getIsbn());
-        assertEquals(BigDecimal.valueOf(39.99), actual.getPrice());
+
+        BookDto expected = new BookDto()
+                .setId(bookId)
+                .setTitle("Updated Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setIsbn("978-1234567891")
+                .setPrice(BigDecimal.valueOf(39.99));
+
+        assertTrue(EqualsBuilder.reflectionEquals(expected, actual,
+                "description", "coverImage", "categoryIds"));
     }
 }

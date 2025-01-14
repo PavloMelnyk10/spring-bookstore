@@ -1,8 +1,6 @@
 package mate.academy.bookstore.controller.category;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -13,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mate.academy.bookstore.dto.category.CategoryDto;
 import mate.academy.bookstore.dto.category.CreateCategoryRequestDto;
 import mate.academy.bookstore.dto.category.UpdateCategoryRequestDto;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,16 +63,22 @@ class CategoryControllerTest {
         MvcResult result = mockMvc.perform(post("/categories")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect((status().isCreated()))
+                .andExpect(status().isCreated())
                 .andReturn();
 
         // Then
         CategoryDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), CategoryDto.class);
 
-        assertNotNull(actual);
-        assertNotNull(actual.getId());
-        EqualsBuilder.reflectionEquals(expected, actual, "id");
+        assertThat(actual)
+                .isNotNull()
+                .extracting(CategoryDto::getId)
+                .isNotNull();
+
+        assertThat(actual)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(expected);
     }
 
     @Test
@@ -104,9 +107,10 @@ class CategoryControllerTest {
         CategoryDto actual = objectMapper
                 .readValue(result.getResponse().getContentAsString(), CategoryDto.class);
 
-        assertNotNull(actual);
-        assertEquals("Updated Category", actual.getName());
-        assertEquals("Updated Description", actual.getDescription());
+        assertThat(actual)
+                .isNotNull()
+                .extracting(CategoryDto::getName, CategoryDto::getDescription)
+                .containsExactly("Updated Category", "Updated Description");
     }
 
     @Test
@@ -131,9 +135,9 @@ class CategoryControllerTest {
 
         // Then
         String actualResponse = result.getResponse().getContentAsString();
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.contains("Harry Potter"));
-        assertTrue(actualResponse.contains("The Hobbit"));
+        assertThat(actualResponse)
+                .isNotNull()
+                .contains("Harry Potter", "The Hobbit");
     }
 
     @Test
@@ -150,9 +154,9 @@ class CategoryControllerTest {
 
         // Then
         String actualResponse = result.getResponse().getContentAsString();
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.contains("Fiction"));
-        assertTrue(actualResponse.contains("Books that contain fictional stories."));
+        assertThat(actualResponse)
+                .isNotNull()
+                .contains("Fiction", "Books that contain fictional stories.");
     }
 
     @Test
@@ -168,9 +172,8 @@ class CategoryControllerTest {
 
         // Then
         String actualResponse = result.getResponse().getContentAsString();
-        assertNotNull(actualResponse);
-        assertTrue(actualResponse.contains("Fiction"));
-        assertTrue(actualResponse.contains("History"));
-        assertTrue(actualResponse.contains("Fantasy"));
+        assertThat(actualResponse)
+                .isNotNull()
+                .contains("Fiction", "History", "Fantasy");
     }
 }

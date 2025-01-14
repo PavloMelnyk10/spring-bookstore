@@ -3,7 +3,6 @@ package mate.academy.bookstore.repository.category;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import mate.academy.bookstore.model.Category;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +18,13 @@ class CategoryRepositoryTest {
 
     @Test
     @DisplayName("Given a category name, when it exists, then should return true")
-    @Sql(scripts = "classpath:database/categories/remove-single-category.sql",
+    @Sql(value = "classpath:database/categories/add-single-category.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "classpath:database/categories/remove-single-category.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void existsByName_CategoryExists_ReturnsTrue() {
         // Given
         String categoryName = "Category";
-        Category category = new Category();
-        category.setName(categoryName);
-        categoryRepository.save(category);
 
         // When
         boolean exists = categoryRepository.existsByName(categoryName);
