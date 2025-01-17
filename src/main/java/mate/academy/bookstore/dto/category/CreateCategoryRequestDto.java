@@ -4,9 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class CreateCategoryRequestDto {
     @NotBlank(message = "Category name is required")
     @Size(min = 3, max = 50, message = "The category name must be between 3 and 50 characters")

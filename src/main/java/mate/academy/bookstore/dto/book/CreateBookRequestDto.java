@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class CreateBookRequestDto {
-    private Long id;
-
     @NotBlank(message = "Please provide a book title")
     @Size(min = 3, max = 100, message = "The book title must be between 3 and 100 characters")
     private String title;
