@@ -51,14 +51,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_ValidRequestDto_Success() throws Exception {
         // Given
-        CreateBookRequestDto requestDto = new CreateBookRequestDto()
-                .setTitle("Harry Potter")
-                .setAuthor("J.K. Rowling")
-                .setDescription("A wizard's journey")
-                .setIsbn("978-1234567897")
-                .setPrice(BigDecimal.valueOf(29.99))
-                .setCoverImage("https://example.com/hp.jpg")
-                .setCategoryIds(Set.of(1L));
+        CreateBookRequestDto requestDto = createBookRequestDto();
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
@@ -74,16 +67,7 @@ class BookControllerTest {
                 result.getResponse().getContentAsString(), BookDto.class);
         assertNotNull(actual);
 
-        BookDto expected = new BookDto()
-                .setId(actual.getId())
-                .setTitle("Harry Potter")
-                .setAuthor("J.K. Rowling")
-                .setDescription("A wizard's journey")
-                .setIsbn("978-1234567897")
-                .setPrice(BigDecimal.valueOf(29.99))
-                .setCoverImage("https://example.com/hp.jpg")
-                .setCategoryIds(Set.of(1L));
-
+        BookDto expected = createBookDto(actual.getId());
         assertTrue(EqualsBuilder.reflectionEquals(expected, actual));
     }
 
@@ -122,13 +106,29 @@ class BookControllerTest {
     }
 
     @Test
-    @DisplayName("Delete a book")
+    @DisplayName("Delete a book by ID")
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Sql(scripts = "classpath:database/books/add-one-book-with-category.sql",
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "classpath:database/books/delete-book.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void deleteBook_ValidId_Success() throws Exception {
+        // Given
+        long bookId = 1L;
+
+        // When
+        mockMvc.perform(delete("/books/" + bookId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Verify book absence after deletion")
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @Sql(scripts = "classpath:database/books/add-one-book-with-category.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:database/books/delete-book.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void verifyBookAbsenceAfterDeletion() throws Exception {
         // Given
         long bookId = 1L;
 
@@ -150,11 +150,7 @@ class BookControllerTest {
     void updateBook_ValidRequestDto_Success() throws Exception {
         // Given
         long bookId = 1L;
-        UpdateBookRequestDto requestDto = new UpdateBookRequestDto()
-                .setTitle("Updated Harry Potter")
-                .setAuthor("J.K. Rowling")
-                .setIsbn("978-1234567891")
-                .setPrice(BigDecimal.valueOf(39.99));
+        UpdateBookRequestDto requestDto = createUpdateBookRequestDto();
 
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
@@ -179,5 +175,36 @@ class BookControllerTest {
 
         assertTrue(EqualsBuilder.reflectionEquals(expected, actual,
                 "description", "coverImage", "categoryIds"));
+    }
+
+    private CreateBookRequestDto createBookRequestDto() {
+        return new CreateBookRequestDto()
+                .setTitle("Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setDescription("A wizard's journey")
+                .setIsbn("978-1234567897")
+                .setPrice(BigDecimal.valueOf(29.99))
+                .setCoverImage("https://example.com/hp.jpg")
+                .setCategoryIds(Set.of(1L));
+    }
+
+    private BookDto createBookDto(Long id) {
+        return new BookDto()
+                .setId(id)
+                .setTitle("Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setDescription("A wizard's journey")
+                .setIsbn("978-1234567897")
+                .setPrice(BigDecimal.valueOf(29.99))
+                .setCoverImage("https://example.com/hp.jpg")
+                .setCategoryIds(Set.of(1L));
+    }
+
+    private UpdateBookRequestDto createUpdateBookRequestDto() {
+        return new UpdateBookRequestDto()
+                .setTitle("Updated Harry Potter")
+                .setAuthor("J.K. Rowling")
+                .setIsbn("978-1234567891")
+                .setPrice(BigDecimal.valueOf(39.99));
     }
 }
