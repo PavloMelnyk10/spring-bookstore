@@ -106,3 +106,49 @@ For full administrative capabilities, users need the `ADMIN` role, which is not 
 - **GET /api/orders/{orderId}/items** — Get the items of a specific order (User role required)
 - **GET /api/orders/{orderId}/items/{itemId}** — Get a specific order item (User role required)
 - **PATCH /api/orders/{id}** — Update the status of an order (Admin role required)
+
+## Installation and Setup
+
+### Prerequisites
+Make sure you have the following technologies installed:
+- Java 21
+- Maven
+- Docker
+- Docker Compose
+- MySQL
+
+### Cloning the Project
+```bash
+git clone https://github.com/yourusername/online-bookstore.git
+cd online-bookstore
+```
+
+### Setting Up the Database
+1. Create a database named `bookstore` in your MySQL instance.
+2. Update the `application.properties` and `liquibase.properties` files with your MySQL credentials.
+
+### Running the Project
+1. Build the project using Maven:
+   ```bash
+   mvn clean install
+   ```
+2. Start the application:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+### Running with Docker
+To run the application using Docker:
+1. Copy the sample environment file and update the values as needed:
+   ```bash
+   cp .env.sample .env
+   ```
+2. Build the Docker images and start the containers:
+   ```bash
+   docker-compose up --build
+   ```
+
+### Accessing the Application
+- The application will be accessible at `http://localhost:8080/api`.
+- Swagger UI will be available at `http://localhost:8080/api/swagger-ui.html`.
+
